@@ -1,0 +1,60 @@
+Description
+===========
+Pulse for AWS Cloudwatch will pull metrics from AWS Cloudwatch into Splunk and provides sample dashboards for EC2, ELB, RDS, EBS.  It will also pull in the Alarm History for your account and put it in a timeline for you to browse.  The provided scripts and dashboards should work across multiple regions.  However, it has only been tested in us-east-1.
+
+Changes
+=======
+- v1.0 - Initial Release
+
+Current Bugs
+============
+- Real-Time dashboards do not work at this time.  A support case is open and the bug has been assigned a case: SPL-47535
+
+Requirements
+============
+- Splunk 4.x
+- Python Boto -- http://code.google.com/p/boto/
+- Python Dateutil 1.5-- http://labix.org/python-dateutil
+
+Installation
+============
+- Extract pulse_for_aws_cloudwatch.tar.gz to $SPLUNK_HOME/etc/apps
+
+- Extract Python Boto and Python Dateutil 1.5 to $SPLUNK_HOME/etc/apps/pulse_for_aws_cloudwatch/pymodules
+
+- Execute: ln -s $SPLUNK_HOME/etc/apps/pulse_for_aws_cloudwatch/pymodules/boto-2.1.1/boto 
+$SPLUNK_HOME/etc/apps/pulse_for_aws_cloudwatch/bin
+
+- Execute: ln –s $SPLUNK_HOME/etc/apps/pulse_for_aws_cloudwatch/pymodules/python-dateutil-1.5/dateutil $SPLUNK_HOME/etc/apps/pulse_for_aws_cloudwatch/bin
+
+- Launch the app and go through the setup process by entering your Access Key ID and Secret Access Key.  It is recommended that you create a new user that has read-only permission to AWS CloudWatch.
+
+- If you utilize Opscode Chef, a Splunk Cookbook and Recipe for App install is located at http://www.github.com/bestbuycom/splunk_cookbook
+
+Configuration Files
+===================
+Inputs.conf:
+
+- Scripts take two optional parameters: region and polling interval in seconds.  The minimum polling interval allowed is 60 seconds.  The default region is us-east-1 and an interval of 300 seconds.  Examples:
+
+	o	[script://./bin/EC2_Metrics.py us-east-1 600] will grab the last 600 seconds (10 minutes) of data from the time the script is executed for the us-east-1 region.
+	
+		Available Regions:
+		o	us-east-1
+		o	us-west-1
+		o	eu-west-1
+		o	ap-northeast-1
+		o	ap-southeast-1
+
+License and Author
+==================
+Author:: Andrew Painter (andrew.painter@bestbuy.com) 
+
+Copyright 2012, BBY Solutions, Inc. 
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0 
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+

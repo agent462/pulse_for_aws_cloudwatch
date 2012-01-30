@@ -1,0 +1,211 @@
+<!-- 
+## Author:: Andrew Painter (andrew.painter@bestbuy.com) 
+## 
+## Copyright 2012, BBY Solutions, Inc. 
+## 
+## Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+## use this file except in compliance with the License. You may obtain a copy 
+## of the License at
+## 
+## http://www.apache.org/licenses/LICENSE-2.0 
+## 
+## Unless required by applicable law or agreed to in writing, software distributed 
+## under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+## CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+## specific language governing permissions and limitations under the License.
+-->
+
+<view onunloadCancelJobs="True" isVisible="True" autoCancelInterval="90" template="dashboard.html">
+	<label>EC2 Network Metrics / Total</label>
+	<module name="AccountBar" layoutPanel="appHeader"/>
+	<module name="AppBar" layoutPanel="navigationHeader"/>
+	<module name="Message" layoutPanel="messaging">
+		<param name="filter">*</param>
+		<param name="clearOnJobDispatch">False</param>
+		<param name="maxSize">1</param>
+	</module>
+	<module name="TitleBar" layoutPanel="viewHeader">
+		<param name="actionsMenuFilter">dashboard</param>
+	</module>
+	<module name="TimeRangePicker" layoutPanel="mainSearchControls" autoRun="true">
+		<param name="default">Last 15 minutes</param>
+		<param name="searchWhenChanged">True</param>
+		<module name="SearchSelectLister" layoutPanel="mainSearchControls">
+			<param name="search">`EC2_Metrics(aws_region="*",aws_group="Total",aws_metric="Network*")` | stats count by aws_region</param>
+			<param name="settingToCreate">aws_region_setting</param>
+			<param name="searchWhenChanged">True</param>
+			<param name="applyOuterTimeRangeToInternalSearch">True</param>
+			<param name="label">Region:</param>
+			<param name="staticFieldsToDisplay">
+				<list>
+					<param name="label">All</param>
+					<param name="value">*</param>
+				</list>
+			</param>
+			<param name="searchFieldsToDisplay">
+				<list>
+					<param name="label">aws_region</param>
+					<param name="value">aws_region</param>
+				</list>
+			</param>
+			<module name="ConvertToIntention">
+				<param name="settingToConvert">aws_region_setting</param>
+		        <param name="intention">
+	            	<param name="name">stringreplace</param>
+	            	<param name="arg">
+						<param name="aws_region_id">
+							<param name="value">$target$</param>
+						</param>
+		        	</param>
+	        	</param>
+				<module name="HiddenSearch">
+					<param name="search">`EC2_Metrics(aws_region=$aws_region_id$,aws_group="Total",aws_metric="Network*")` | fields aws_avg, aws_max, aws_min, aws_metric, _time,aws_group</param>
+					<module name="HiddenPostProcess" layoutPanel="panel_row2_col1">
+						<param name="search">search aws_metric = NetworkIn | chart first(aws_avg) as aws_avg by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Average NetworkIn (Bytes) / Time</param>
+						   	<param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+					<module name="HiddenPostProcess" layoutPanel="panel_row2_col2">
+						<param name="search">search aws_metric = NetworkIn | chart first(aws_max) as aws_max by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Max NetworkIn (Bytes) / Time</param>
+						    <param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+					<module name="HiddenPostProcess" layoutPanel="panel_row3_col1">
+						<param name="search">search aws_metric = NetworkIn | chart first(aws_min) as aws_min by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Min NetworkIn (Bytes) / Time</param>
+						    <param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+					<module name="HiddenPostProcess" layoutPanel="panel_row2_col1">
+						<param name="search">search aws_metric = NetworkOut | chart first(aws_avg) as aws_avg by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Average NetworkOut (Bytes) / Time</param>
+						    <param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+					<module name="HiddenPostProcess" layoutPanel="panel_row2_col2">
+						<param name="search">search aws_metric = NetworkOut | chart first(aws_max) as aws_max by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Max NetworkOut (Bytes) / Time</param>
+						    <param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+					<module name="HiddenPostProcess" layoutPanel="panel_row3_col1">
+						<param name="search">search aws_metric = NetworkOut | chart first(aws_min) as aws_min by _time</param>
+						<module name="HiddenChartFormatter">
+							<param name="chartTitle">Min NetworkOut (Bytes) / Time</param>
+						    <param name="charting.chart">line</param>
+				            <param name="charting.secondaryAxisTitle.height">0</param>
+							<param name="charting.secondaryAxisTitle.margin">0</param>
+							<param name="charting.secondaryAxisTitle.text"></param>
+				            <param name="charting.primaryAxisTitle.height">0</param>
+							<param name="charting.primaryAxisTitle.margin">0</param>
+							<param name="charting.primaryAxisTitle.text"></param>
+				            <param name="charting.legend.placement">none</param>
+							<module name="JobProgressIndicator">
+								<module name="FlashChart">
+							    	<param name="width">100%</param>
+									<module name="ConvertToDrilldownSearch">
+										<module name="ViewRedirector">
+											<param name="viewTarget">flashtimeline</param>
+										</module>
+									</module>
+							   	</module>
+						    </module>
+						</module>
+					</module>
+			    </module>
+			</module>
+		</module>
+	</module>
+</view>
